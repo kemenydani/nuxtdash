@@ -44,6 +44,10 @@ module.exports = {
   ** Nuxt.js modules
   */
   modules: [
+	  // Simple usage
+	  '@nuxtjs/proxy',
+	  // With options
+	  ['@nuxtjs/proxy', { pathRewrite: { '^/api' : '/api/v1' } }],
   ],
 
   /*
