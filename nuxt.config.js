@@ -25,7 +25,11 @@ module.exports = {
   ** Customize the progress-bar color
   */
   loading: { color: '#FFFFFF' },
-
+	
+	router: {
+		mode: 'hash'
+	},
+  
   /*
   ** Global CSS
   */
@@ -45,12 +49,14 @@ module.exports = {
   ** Nuxt.js modules
   */
   modules: [
-	  // Simple usage
-	  '@nuxtjs/proxy',
 	  // With options
-	  ['@nuxtjs/proxy', { pathRewrite: { '^/api' : '/api/v1' } }],
+	  '@nuxtjs/proxy',
   ],
-
+	
+	proxy: {
+		'/api': { target: 'http://phpsandbox', ws: false }
+	},
+  
   /*
   ** Build configuration
   */

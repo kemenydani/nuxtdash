@@ -38,6 +38,11 @@ export default {
   components: {
     Logo,
     VuetifyLogo
+  },
+  mounted(){
+    fetch('/api/articles').then((r) => {
+    	console.log(r.json())
+    });
   }
 }
 </script>
