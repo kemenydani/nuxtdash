@@ -1,6 +1,6 @@
 <template>
 	<v-content>
-		article overview
+		<div v-for="(item, key) in data" :key="key">{{ item.title }}</div>
 	</v-content>
 </template>
 
@@ -8,14 +8,18 @@
 	
 	export default {
 		name: 'pageArticleOverview',
-		head: {
-			title : 'Article Overview'
-		},
+		head: { title : 'Article Overview' },
 		data() {
 			return {
-			
+				data : []
 			}
-		}
+		},
+		async asyncData(){
+			return fetch('/api/articles').then(response =>
+				response.json().then( items => ({ data : items } ))
+			)
+		},
+
 	}
 </script>
 
