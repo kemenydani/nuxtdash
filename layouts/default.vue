@@ -58,6 +58,8 @@
 
 <script>
   export default {
+  	name: 'layoutDefault',
+	  middleware: 'auth',
     data() {
       return {
         clipped: false,
@@ -65,13 +67,14 @@
         fixed: false,
         items: [
           { icon: 'apps', title: 'Welcome', to: '/' },
-          { icon: 'bubble_chart', title: 'Inspire', to: '/inspire' }
+          { icon: 'bubble_chart', title: 'Articles', to: '/article' },
+	        { icon: 'group', title: 'Users', to: '/user' }
         ],
         miniVariant: false,
         right: true,
         rightDrawer: false,
-        title: 'Vuetify.js'
+        title: 'Dashboard'
       }
-    }
+    },
   }
 </script>

@@ -5,11 +5,17 @@ const nodeExternals = require('webpack-node-externals')
 module.exports = {
   mode: 'spa',
 
+  env: {
+    head : {
+      title : 'Admin'
+    }
+  },
+  
   /*
   ** Headers of the page
   */
   head: {
-    title: pkg.name,
+	  titleTemplate: 'Admin | %s',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -24,11 +30,28 @@ module.exports = {
   /*
   ** Customize the progress-bar color
   */
-  loading: { color: 'red' },
-	
+  loading: { color: '#78aaff', height: '5px' },
+	loadingIndicator: {
+    name: 'circle',
+    color: '#78aaff',
+  },
+  
 	router: {
-		mode: 'hash'
+		mode: 'hash',
+    /*
+    extendRoutes(routes, resolve){
+		  routes.push({
+        path: '*',
+        component: resolve(__dirname, 'pages/index.vue')
+      })
+    }
+    */
 	},
+  
+  transition: {
+    name: 'fade',
+    mode: 'out-in'
+  },
   
   /*
   ** Global CSS
@@ -42,16 +65,21 @@ module.exports = {
   ** Plugins to load before mounting the App
   */
   plugins: [
-    '@/plugins/vuetify'
+	  '@/plugins/globalComponents.js',
+    '@/plugins/vuetify',
   ],
 
   /*
   ** Nuxt.js modules
   */
   modules: [
-	  // With options
 	  '@nuxtjs/proxy',
+	  '@nuxtjs/toast',
   ],
+	
+	auth: {
+		// Options
+	},
 	
 	proxy: {
 		'/api': { target: 'http://phpsandbox', ws: false }
