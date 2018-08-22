@@ -11,9 +11,10 @@ export default function(context)
 			}
 		})
 		.then( response => response.json() )
-		.then( json =>
+		.then( userData =>
 		{
-				console.log(json);
+			console.log(userData)
+				context.store.dispatch('setAuthUser', userData);
 				resolve(true)
 		})
 		.catch( error => {

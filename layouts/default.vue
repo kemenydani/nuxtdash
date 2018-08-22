@@ -34,9 +34,17 @@
       </v-btn>
       <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click.stop="rightDrawer = !rightDrawer">
-        <v-icon>menu</v-icon>
-      </v-btn>
+      
+      <v-badge overlap color="red">
+        <span slot="badge">5</span>
+        <v-icon @click.stop="rightDrawer = !rightDrawer"
+            large
+            color="white"
+        >
+          account_circle
+        </v-icon>
+      </v-badge>
+     
     </v-toolbar>
     <v-content>
       <v-container>
@@ -45,11 +53,38 @@
     </v-content>
     <v-navigation-drawer temporary :right="right" v-model="rightDrawer" fixed>
       <v-list>
-        <v-list-tile @click.native="right = !right">
-          <v-list-tile-action>
-            <v-icon light>compare_arrows</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-title>Switch drawer (click me)</v-list-tile-title>
+        <v-list-tile>
+          <v-list-tile-content>
+            <v-list-tile-title>
+              {{ authUser.UserName }}
+            </v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-divider></v-divider>
+        <v-list-tile>
+          <v-list-tile-content>
+            <v-list-tile-title>notification</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-list-tile>
+          <v-list-tile-content>
+            <v-list-tile-title>notification</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-list-tile>
+          <v-list-tile-content>
+            <v-list-tile-title>notification</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-list-tile>
+          <v-list-tile-content>
+            <v-list-tile-title>notification</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-list-tile>
+          <v-list-tile-content>
+            <v-list-tile-title>notification</v-list-tile-title>
+          </v-list-tile-content>
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
@@ -76,5 +111,10 @@
         title: 'Dashboard'
       }
     },
+	  computed: {
+		  authUser() {
+			  return this.$store.getters.getAuthUser;
+		  }
+	  }
   }
 </script>

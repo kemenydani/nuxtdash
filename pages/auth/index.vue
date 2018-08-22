@@ -8,14 +8,14 @@
 				<v-divider></v-divider>
 				<v-card-text>
 					<v-container>
-						<form @submit.prevent="onLogin">
+						<form @submit.prevent="onSubmit">
 							<v-layout row>
 								<v-flex xs12>
 									<v-text-field
 											name="email"
 											label="Email"
 											id="email"
-											v-model="email"
+											v-model="Email"
 											type="email"
 											required></v-text-field>
 								</v-flex>
@@ -26,24 +26,22 @@
 											name="password"
 											label="Password"
 											id="password"
-											v-model="password"
+											v-model="Password"
 											type="password"
 											required></v-text-field>
 								</v-flex>
 							</v-layout>
-							
 							<v-layout row>
 								<v-flex xs12>
 									<v-checkbox
 											label="Remember Me"
-											v-model="remember"
+											v-model="Remember"
 									></v-checkbox>
 								</v-flex>
 							</v-layout>
-							
 							<v-layout row>
 								<v-flex xs12>
-									<v-btn type="submit" :disabled="loading" :loading="loading">
+									<v-btn type="submit">
 										Sign in
 										<span slot="loader" class="custom-loader">
                         <v-icon light>cached</v-icon>
@@ -66,14 +64,41 @@
 		name: 'pageAuth',
 		data() {
 			return {
-				email : '',
-				password: '',
-				remember: true
+				Email : '',
+				Password: '',
+				Remember: true
 			}
 		},
 		methods: {
-			onLogin(){
+			async onSubmit()
+			{
 			
+					let response = await this.postCredentials({
+						Email    : this.Email,
+						Password : this.Password
+					});
+					
+					let userData = await response.json();
+				
+					console.log(userData);
+					
+					if(userData) this.$store.dispatch('setAuthUser', userData);
+			},
+			postCredentials( credentials = {} )
+			{
+				let formData = new FormData();
+				
+				Object.keys(credentials).forEach( key => formData[key] = credentials[key] );
+				
+				return fetch('api/signin', {
+					credentials: 'include',
+					method: 'POST',
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json'
+					},
+					body: formData
+				})
 			}
 		},
 		mounted() {
