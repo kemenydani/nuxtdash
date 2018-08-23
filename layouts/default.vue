@@ -36,7 +36,9 @@
       <v-spacer></v-spacer>
       
       <v-badge overlap color="red">
-        <span slot="badge">5</span>
+        <span slot="badge" v-show="authUser.Notifications.length > 0">
+          {{ authUser.Notifications.length }}
+        </span>
         <v-icon @click.stop="rightDrawer = !rightDrawer"
             large
             color="white"
@@ -51,42 +53,89 @@
         <nuxt />
       </v-container>
     </v-content>
-    <v-navigation-drawer temporary :right="right" v-model="rightDrawer" fixed>
+    <v-navigation-drawer app :right="right" v-model="rightDrawer" fixed>
+      
       <v-list>
         <v-list-tile>
+          <v-list-tile-avatar>
+            <img>
+          </v-list-tile-avatar>
           <v-list-tile-content>
-            <v-list-tile-title>
-              {{ authUser.UserName }}
-            </v-list-tile-title>
+            <v-list-tile-title>{{ authUser.UserName }}</v-list-tile-title>
           </v-list-tile-content>
-        </v-list-tile>
-        <v-divider></v-divider>
-        <v-list-tile>
-          <v-list-tile-content>
-            <v-list-tile-title>notification</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile>
-          <v-list-tile-content>
-            <v-list-tile-title>notification</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile>
-          <v-list-tile-content>
-            <v-list-tile-title>notification</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile>
-          <v-list-tile-content>
-            <v-list-tile-title>notification</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile>
-          <v-list-tile-content>
-            <v-list-tile-title>notification</v-list-tile-title>
-          </v-list-tile-content>
+          <v-list-tile-action>
+            <v-btn icon @click.stop="rightDrawer = !rightDrawer">
+              <v-icon>clear</v-icon>
+            </v-btn>
+          </v-list-tile-action>
         </v-list-tile>
       </v-list>
+  
+      <v-list-tile color="primary">
+        <h3>Timeline</h3>
+      </v-list-tile>
+  
+      <v-list dense>
+        <template v-for="(item, key) in authUser.Notifications">
+          <v-divider :key="key"></v-divider>
+          <v-list-tile :key="key">
+            <!--
+            <v-list-tile-avatar>
+              <v-icon :color="item.Touched == 1 ? 'grey' : 'accent'">notification_important</v-icon>
+            </v-list-tile-avatar>
+            -->
+            <v-list-tile-content>
+              <v-list-tile-sub-title v-if="item.Touched == 1">{{ item.Message }}</v-list-tile-sub-title>
+              <v-list-tile-title v-else>{{ item.Message }}</v-list-tile-title>
+            </v-list-tile-content>
+            <!--
+            <v-list-tile-action>
+              <v-icon v-if="item.Touched == 0"
+                  color="primary"
+              >
+                check
+              </v-icon>
+              <v-icon v-else-if="item.Touched == 1"
+                      color="grey"
+              >
+                done_all
+              </v-icon>
+            </v-list-tile-action>
+            -->
+          </v-list-tile>
+        </template>
+   
+        <v-list-tile color="primary">
+          <v-list-tile-title class="text-xs-right">History »</v-list-tile-title>
+        </v-list-tile>
+      </v-list>
+      
+      <v-list-tile color="primary">
+        <h3>Inbox</h3>
+      </v-list-tile>
+      
+      <v-list two-line>
+        <template v-for="i in 4">
+          <v-divider :key="i"></v-divider>
+          <v-list-tile :key="i" avatar ripple>
+            <v-list-tile-content>
+              <v-list-tile-title>snowy</v-list-tile-title>
+              <v-list-tile-sub-title class="text--primary">Member application</v-list-tile-sub-title>
+              <v-list-tile-sub-title>Lorem ipsum dolor sit amet</v-list-tile-sub-title>
+            </v-list-tile-content>
+            <v-list-tile-action>
+              
+              <v-icon>
+                mail
+              </v-icon>
+            </v-list-tile-action>
+          </v-list-tile>
+        </template>
+        <v-list-tile color="primary">
+          <v-list-tile-title class="text-xs-right">History »</v-list-tile-title>
+        </v-list-tile>
+      </v-list>
+
     </v-navigation-drawer>
   </v-app>
 </template>
