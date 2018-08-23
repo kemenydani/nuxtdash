@@ -36,8 +36,8 @@
       <v-spacer></v-spacer>
       
       <v-badge overlap color="red">
-        <span slot="badge" v-show="authUser.Notifications.length > 0">
-          {{ authUser.Notifications.length }}
+        <span slot="badge" v-if="authUserNotifications && authUserNotifications.length">
+          {{ authUserNotifications.length }}
         </span>
         <v-icon @click.stop="rightDrawer = !rightDrawer"
             large
@@ -76,7 +76,7 @@
       </v-list-tile>
   
       <v-list dense>
-        <template v-for="(item, key) in authUser.Notifications">
+        <template v-for="(item, key) in authUserNotifications">
           <v-divider :key="key"></v-divider>
           <v-list-tile :key="key">
             <!--
@@ -114,8 +114,8 @@
         <h3>Inbox</h3>
       </v-list-tile>
       
-      <v-list two-line>
-        <template v-for="(item, key) in authUser.Conversations">
+      <v-list two-line v-if="authUserConversations && authUserConversations.length">
+        <template v-for="(item, key) in authUserConversations">
           <v-divider :key="key"></v-divider>
           <v-list-tile :key="key" avatar ripple>
             <v-list-tile-content>
@@ -163,22 +163,50 @@
 	  computed: {
 		  authUser() {
 			  return this.$store.getters.getAuthUser;
+		  },
+      authUserNotifications(){
+	      return this.$store.getters.getAuthUserNotifications;
+      },
+		  authUserConversations(){
+			  return this.$store.getters.getAuthUserConversations;
 		  }
 	  },
     methods : {
   		async updateAuthUserNotifications()
       {
-	      console.log('Notifications Update')
-  			//let notifications = await fetch('api/user/notifications');
-  			
+	      let response = await fetch('/api/user/notifications', {
+		      method: 'GET',
+		      credentials : 'include',
+		      headers : {
+			      'Content-Type': 'application/json',
+			      'X-Requested-With' : 'XMLHttpRequest',
+		      }
+	      });
+	      
+	      let notificationData = await response.json();
+	
+	      this.$store.dispatch('setAuthUserNotifications', notificationData || []);
       },
 	    async updateAuthUserConversations()
 	    {
-		    console.log('Conversations Update')
+		    let response = await fetch('/api/user/conversations', {
+			    method: 'GET',
+			    credentials : 'include',
+			    headers : {
+				    'Content-Type': 'application/json',
+				    'X-Requested-With' : 'XMLHttpRequest',
+			    }
+		    });
+		
+		    let conversationData = await response.json();
+      
+		    this.$store.dispatch('setAuthUserConversations', conversationData || []);
 	    }
     },
     created()
     {
+	    this.updateAuthUserNotifications();
+	    this.updateAuthUserConversations();
 	    setInterval(() => this.updateAuthUserNotifications(), process.env.updateNotificationsInterval);
 	    setInterval(() => this.updateAuthUserConversations(), process.env.updateConversationsInterval);
     }

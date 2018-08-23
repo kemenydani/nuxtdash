@@ -12,10 +12,10 @@ const createStore = () => {
 			setAuthUser(state, userData){
 				state.authUser = userData;
 			},
-			authUserNotifications(state, notificationData){
+			setAuthUserNotifications(state, notificationData){
 				state.authUserNotifications = notificationData;
 			},
-			authUserConversations(state, conversationData){
+			setAuthUserConversations(state, conversationData){
 				state.authUserConversations = conversationData;
 			},
 		},

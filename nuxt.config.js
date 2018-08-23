@@ -6,8 +6,8 @@ module.exports = {
   mode: 'spa',
 
   env: {
-    updateConversationsInterval : 3000,
-	  updateNotificationsInterval : 6000,
+    updateConversationsInterval : 10000,
+	  updateNotificationsInterval : 20000,
     head : {
       title : 'Admin'
     }
