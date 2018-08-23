@@ -115,13 +115,13 @@
       </v-list-tile>
       
       <v-list two-line>
-        <template v-for="i in 4">
-          <v-divider :key="i"></v-divider>
-          <v-list-tile :key="i" avatar ripple>
+        <template v-for="(item, key) in authUser.Conversations">
+          <v-divider :key="key"></v-divider>
+          <v-list-tile :key="key" avatar ripple>
             <v-list-tile-content>
               <v-list-tile-title>snowy</v-list-tile-title>
               <v-list-tile-sub-title class="text--primary">Member application</v-list-tile-sub-title>
-              <v-list-tile-sub-title>Lorem ipsum dolor sit amet</v-list-tile-sub-title>
+              <v-list-tile-sub-title></v-list-tile-sub-title>
             </v-list-tile-content>
             <v-list-tile-action>
               
@@ -164,6 +164,23 @@
 		  authUser() {
 			  return this.$store.getters.getAuthUser;
 		  }
-	  }
+	  },
+    methods : {
+  		async updateAuthUserNotifications()
+      {
+	      console.log('Notifications Update')
+  			//let notifications = await fetch('api/user/notifications');
+  			
+      },
+	    async updateAuthUserConversations()
+	    {
+		    console.log('Conversations Update')
+	    }
+    },
+    created()
+    {
+	    setInterval(() => this.updateAuthUserNotifications(), process.env.updateNotificationsInterval);
+	    setInterval(() => this.updateAuthUserConversations(), process.env.updateConversationsInterval);
+    }
   }
 </script>
