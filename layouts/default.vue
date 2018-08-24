@@ -79,8 +79,8 @@
   
       <v-list dense>
         <template v-for="(item, key) in authUserNotifications">
-          <v-divider :key="key"></v-divider>
-          <v-list-tile :key="key">
+          <v-divider :key="'divider' + key"></v-divider>
+          <v-list-tile :key="'item' + key">
             <!--
             <v-list-tile-avatar>
               <v-icon :color="item.Touched == 1 ? 'grey' : 'accent'">notification_important</v-icon>
@@ -118,15 +118,14 @@
       
       <v-list two-line v-if="authUserConversations && authUserConversations.length">
         <template v-for="(item, key) in authUserConversations">
-          <v-divider :key="key"></v-divider>
-          <v-list-tile :key="key" avatar ripple>
+          <v-divider :key="'divider' + key"></v-divider>
+          <v-list-tile :key="'item' + key" @click.native="openConversation(key)" avatar ripple v-if="item.messages.length">
             <v-list-tile-content>
               <v-list-tile-title>snowy</v-list-tile-title>
-              <v-list-tile-sub-title class="text--primary">Member application</v-list-tile-sub-title>
+              <v-list-tile-sub-title>{{ item.messages[0].Text }}</v-list-tile-sub-title>
               <v-list-tile-sub-title></v-list-tile-sub-title>
             </v-list-tile-content>
             <v-list-tile-action>
-              
               <v-icon>
                 mail
               </v-icon>
@@ -159,7 +158,18 @@
         miniVariant: false,
         right: true,
         rightDrawer: false,
-        title: 'Dashboard'
+        title: 'Dashboard',
+        
+        services: {
+        	notification : {
+        		updateInterval : process.env.updateNotificationsInterval
+          },
+          conversation : {
+	          updateInterval : process.env.updateConversationsInterval,
+            focusedUpdateInterval : 5000,
+            focused : false
+          }
+        }
       }
     },
 	  computed: {
@@ -174,13 +184,42 @@
 		  }
 	  },
     methods : {
+  		openConversation(index)
+      {
+        this.updateAuthUserConversations().then( response => {
+        	console.log(response[index])
+        })
+      },
+      async postConversationMessage(ConversationId, Text)
+      {
+	      let formData = new FormData();
+	
+	      formData.append('ConversationId', ConversationId);
+	      formData.append('Text', Text);
+	      
+	      let response = await fetch('api/user/conversation_message', {
+		      credentials: 'include',
+		      method: 'POST',
+		      headers: {
+			      'Accept': 'application/json',
+			      'Content-Type': 'application/json'
+		      },
+		      body: formData
+	      });
+	      
+	      let conversation = await response.json();
+	      
+	      console.log(conversation);
+        
+        return conversation;
+      },
   		async updateAuthUserNotifications()
       {
 	      let response = await fetch('/api/user/notifications', {
 		      method: 'GET',
 		      credentials : 'include',
 		      headers : {
-			      'Content-Type': 'application/json',
+			      'Content-Type' : 'application/json',
 			      'X-Requested-With' : 'XMLHttpRequest',
 		      }
 	      });
@@ -188,6 +227,8 @@
 	      let notificationData = await response.json();
 	
 	      this.$store.dispatch('setAuthUserNotifications', notificationData || []);
+	
+	      return this.authUserNotifications;
       },
 	    async updateAuthUserConversations()
 	    {
@@ -195,7 +236,7 @@
 			    method: 'GET',
 			    credentials : 'include',
 			    headers : {
-				    'Content-Type': 'application/json',
+				    'Content-Type' : 'application/json',
 				    'X-Requested-With' : 'XMLHttpRequest',
 			    }
 		    });
@@ -203,14 +244,16 @@
 		    let conversationData = await response.json();
       
 		    this.$store.dispatch('setAuthUserConversations', conversationData || []);
+		
+		    return this.authUserConversations;
 	    }
     },
     created()
     {
 	    this.updateAuthUserNotifications();
 	    this.updateAuthUserConversations();
-	    setInterval(() => this.updateAuthUserNotifications(), process.env.updateNotificationsInterval);
-	    setInterval(() => this.updateAuthUserConversations(), process.env.updateConversationsInterval);
+	    setInterval(() => this.updateAuthUserNotifications(), this.services.notification.updateInterval);
+	    setInterval(() => this.updateAuthUserConversations(), this.services.conversation.updateInterval);
     }
   }
 </script>
