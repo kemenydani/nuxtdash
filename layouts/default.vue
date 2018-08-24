@@ -119,10 +119,10 @@
       <v-list two-line v-if="authUserConversations && authUserConversations.length">
         <template v-for="(item, key) in authUserConversations">
           <v-divider :key="'divider' + key"></v-divider>
-          <v-list-tile :key="'item' + key" @click.native="openConversation(key)" avatar ripple v-if="item.messages.length">
+          <v-list-tile :key="'item' + key" @click.native="openConversation(key)" avatar ripple>
             <v-list-tile-content>
-              <v-list-tile-title>snowy</v-list-tile-title>
-              <v-list-tile-sub-title>{{ item.messages[0].Text }}</v-list-tile-sub-title>
+              <v-list-tile-title>{{ item.LastMessageUser }}</v-list-tile-title>
+              <v-list-tile-sub-title>{{ item.LastMessageText }}</v-list-tile-sub-title>
               <v-list-tile-sub-title></v-list-tile-sub-title>
             </v-list-tile-content>
             <v-list-tile-action>
@@ -226,7 +226,7 @@
 	      
 	      let notificationData = await response.json();
 	
-	      this.$store.dispatch('setAuthUserNotifications', notificationData || []);
+	      if(notificationData) this.$store.dispatch('setAuthUserNotifications', notificationData || []);
 	
 	      return this.authUserNotifications;
       },
@@ -243,7 +243,7 @@
 		
 		    let conversationData = await response.json();
       
-		    this.$store.dispatch('setAuthUserConversations', conversationData || []);
+		    if(conversationData) this.$store.dispatch('setAuthUserConversations', conversationData || []);
 		
 		    return this.authUserConversations;
 	    }
