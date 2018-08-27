@@ -26,9 +26,11 @@
     </v-navigation-drawer>
     <v-toolbar color="primary" :clipped-left="clipped" fixed app dark>
       <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
+      <!--
       <v-btn icon @click.stop="miniVariant = !miniVariant">
         <v-icon v-html="miniVariant ? 'chevron_right' : 'chevron_left'"></v-icon>
       </v-btn>
+      -->
       <!--
       <v-btn icon @click.stop="clipped = !clipped">
         <v-icon>web</v-icon>
@@ -36,16 +38,28 @@
       -->
       <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-spacer></v-spacer>
-      
-      <v-badge overlap color="red">
-        <span slot="badge" v-if="authUserNotifications && authUserNotifications.length">
-          {{ authUserNotifications.length }}
+  
+      <v-badge overlap color="red" class="mr-2">
+        <span slot="badge" v-if="authUserActiveNotificationCount">
+          {{ authUserActiveNotificationCount }}
         </span>
-        <v-icon @click.stop="rightDrawer = !rightDrawer"
+        <v-icon medium @click.stop="rightDrawer = !rightDrawer"
+                large
+                color="white"
+        >
+          notifications
+        </v-icon>
+      </v-badge>
+      
+      <v-badge overlap color="red" class="ml-2">
+        <span slot="badge" v-if="authUserActiveConversationCount">
+          {{ authUserActiveConversationCount }}
+        </span>
+        <v-icon medium @click.stop="rightDrawer = !rightDrawer"
             large
             color="white"
         >
-          account_circle
+          email
         </v-icon>
       </v-badge>
      
@@ -181,7 +195,13 @@
       },
 		  authUserConversations(){
 			  return this.$store.getters.getAuthUserConversations;
-		  }
+		  },
+		  authUserActiveNotificationCount(){
+			  return this.$store.getters.getAuthUserActiveNotificationCount;
+      },
+		  authUserActiveConversationCount(){
+			  return this.$store.getters.getAuthUserActiveConversationCount;
+      }
 	  },
     methods : {
   		openConversation(index)
@@ -223,10 +243,22 @@
 			      'X-Requested-With' : 'XMLHttpRequest',
 		      }
 	      });
-	      
+       
+	      if(response.status !== 200) return false;
+	      if(!response.json) return false;
+
 	      let notificationData = await response.json();
-	
-	      if(notificationData) this.$store.dispatch('setAuthUserNotifications', notificationData || []);
+	      
+	      try
+        {
+		      JSON.stringify(notificationData);
+	      }
+	      catch (e)
+        {
+		      return false;
+	      }
+       
+	      this.$store.dispatch('setAuthUserNotifications', notificationData || []);
 	
 	      return this.authUserNotifications;
       },
@@ -240,10 +272,22 @@
 				    'X-Requested-With' : 'XMLHttpRequest',
 			    }
 		    });
+		    
+		    if(response.status !== 200) return false;
+		    if(!response.json) return false;
 		
 		    let conversationData = await response.json();
       
-		    if(conversationData) this.$store.dispatch('setAuthUserConversations', conversationData || []);
+		    try
+        {
+			   JSON.stringify(conversationData);
+		    }
+		    catch (e)
+        {
+			    return false;
+		    }
+		    
+		    this.$store.dispatch('setAuthUserConversations', conversationData || []);
 		
 		    return this.authUserConversations;
 	    }

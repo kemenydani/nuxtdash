@@ -37,8 +37,16 @@ const createStore = () => {
 			getAuthUserNotifications(state){
 				return state.authUserNotifications;
 			},
+			getAuthUserActiveNotificationCount(state){
+				return state.authUserNotifications.length || 0;
+			},
 			getAuthUserConversations(state){
 				return state.authUserConversations;
+			},
+			getAuthUserActiveConversationCount(state){
+				let activeConversationCount = 0;
+				state.authUserConversations.forEach( item => activeConversationCount++);
+				return activeConversationCount;
 			},
 		}
 	});
