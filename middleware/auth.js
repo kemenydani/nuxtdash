@@ -10,22 +10,22 @@ export default function(context)
 				'X-Requested-With' : 'XMLHttpRequest',
 			}
 		})
-		.then( response => response.json() )
-		.then( userData =>
+		.then( response =>
 		{
-			console.log(userData)
-				context.store.dispatch('setAuthUser', userData);
-				resolve(true)
+			if(response.status === 500) throw new Error('Unauthorized, reason: Internal server error.');
+			if(response.status === 401) throw new Error('Unauthorized, reason: Wrong login credentials.');
+			if(response.status !== 200) throw new Error('Unauthorized, reason: Unknown server error.');
+
+			return response.json();
+		})
+		.then( json =>
+		{
+				context.store.dispatch('setAuthUser', json);
+				resolve(true);
 		})
 		.catch( error => {
-			console.error('Unauthorized: ' + error.message);
-			reject('Unauthorized');
-		})
-		/*
-		//console.log('Waiting for authentication...');
-		setTimeout(() => {
-			//console.log('Authenticated.');
-			resolve(true)
-		}, 0)*/
+			reject(error.message);
+			context.redirect("/auth");
+		});
 	})
 }
