@@ -72,7 +72,6 @@
 		methods: {
 			async onSubmit()
 			{
-			
 					let response = await this.postCredentials({
 						Email    : this.Email,
 						Password : this.Password
@@ -86,10 +85,6 @@
 			},
 			postCredentials( credentials = {} )
 			{
-				let formData = new FormData();
-				
-				Object.keys(credentials).forEach( key => formData[key] = credentials[key] );
-				
 				return fetch('api/signin', {
 					credentials: 'include',
 					method: 'POST',
@@ -97,7 +92,7 @@
 						'Accept': 'application/json',
 						'Content-Type': 'application/json'
 					},
-					body: formData
+					body: JSON.stringify(credentials)
 				})
 			}
 		},
