@@ -1,6 +1,6 @@
-export default function(context)
+export default function({ store, redirect })
 {
-	return new Promise((resolve, reject) =>
+	return new Promise( (resolve, reject) =>
 	{
 		return fetch('/api/auth', {
 			method: 'GET',
@@ -20,12 +20,15 @@ export default function(context)
 		})
 		.then( json =>
 		{
-				context.store.dispatch('setAuthUser', json);
-				resolve(true);
+			//store.dispatch('setIsAuthenticated', true);
+			store.dispatch('setAuthUser', json);
+			resolve(true);
 		})
-		.catch( error => {
-			reject(error.message);
-			context.redirect("/auth");
+		.catch( error =>
+		{
+			//store.dispatch('setIsAuthenticated', false);
+			store.dispatch('setAuthUser', {});
+			return redirect('/auth')
 		});
 	})
 }

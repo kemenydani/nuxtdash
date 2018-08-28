@@ -61,7 +61,7 @@
 	
 	export default {
 		layout : 'auth',
-		name: 'pageAuth',
+		middleware: 'no-auth',
 		data() {
 			return {
 				Email : '',
@@ -78,10 +78,13 @@
 					});
 					
 					let userData = await response.json();
-				
-					console.log(userData);
 					
-					if(userData) this.$store.dispatch('setAuthUser', userData);
+					if(response.status === 200 && userData)
+					{
+						//this.$store.dispatch('setIsAuthenticated', true);
+						this.$store.dispatch('setAuthUser', userData);
+						this.$router.push('/');
+					}
 			},
 			postCredentials( credentials = {} )
 			{

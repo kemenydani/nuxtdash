@@ -80,9 +80,9 @@
             <v-list-tile-title>{{ authUser.UserName }}</v-list-tile-title>
           </v-list-tile-content>
           <v-list-tile-action>
-            <v-btn icon @click.stop="rightDrawer = !rightDrawer">
-              <v-icon>clear</v-icon>
-            </v-btn>
+              <v-btn fab title="logout" depressed small color="red" @click.stop="onSignOut">
+                <v-icon color="white">power_settings_new</v-icon>
+              </v-btn>
           </v-list-tile-action>
         </v-list-tile>
       </v-list>
@@ -187,6 +187,9 @@
       }
     },
 	  computed: {
+		  isAuthenticated() {
+			  return this.$store.getters.getIsAuthenticated;
+		  },
 		  authUser() {
 			  return this.$store.getters.getAuthUser;
 		  },
@@ -204,6 +207,24 @@
       }
 	  },
     methods : {
+  		async onSignOut()
+      {
+			  let response = await fetch('api/signout', {
+				  credentials: 'include',
+				  method: 'POST',
+				  headers: {
+					  'Accept': 'application/json',
+					  'Content-Type': 'application/json'
+				  }
+			  });
+			
+			  if(response.status === 200)
+			  {
+				  //this.$store.dispatch('setIsAuthenticated', false);
+				  this.$store.dispatch('setAuthUser', {});
+				  this.$router.push('auth');
+        }
+      },
   		openConversation(index)
       {
         this.updateAuthUserConversations().then( response => {
@@ -294,10 +315,13 @@
     },
     created()
     {
-	    this.updateAuthUserNotifications();
-	    this.updateAuthUserConversations();
-	    setInterval(() => this.updateAuthUserNotifications(), this.services.notification.updateInterval);
-	    setInterval(() => this.updateAuthUserConversations(), this.services.conversation.updateInterval);
+    	if(this.isAuthenticated)
+    	{
+		    this.updateAuthUserNotifications();
+		    this.updateAuthUserConversations();
+		    setInterval(() => this.updateAuthUserNotifications(), this.services.notification.updateInterval);
+		    setInterval(() => this.updateAuthUserConversations(), this.services.conversation.updateInterval);
+      }
     }
   }
 </script>
