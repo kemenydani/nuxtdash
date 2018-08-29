@@ -1,60 +1,15 @@
 <template>
 	<v-card class="elevation-3">
 		<v-toolbar flat color="white">
-			
-			
 			<v-toolbar-title>{{ title }}</v-toolbar-title>
 			<v-spacer></v-spacer>
-			<!--
-			<v-dialog v-model="dialog" max-width="500px">
-				<v-btn slot="activator" color="primary" small dark class="mr-0">New Item</v-btn>
-				<v-card>
-					<v-card-title>
-						<span class="headline">{{ formTitle }}</span>
-					</v-card-title>
-					
-					<v-card-text>
-						<v-container grid-list-md>
-							<v-layout wrap>
-								<v-flex xs12 sm6 md4>
-									<v-text-field v-model="editedItem.name" label="Dessert name"></v-text-field>
-								</v-flex>
-								<v-flex xs12 sm6 md4>
-									<v-text-field v-model="editedItem.calories" label="Calories"></v-text-field>
-								</v-flex>
-								<v-flex xs12 sm6 md4>
-									<v-text-field v-model="editedItem.fat" label="Fat (g)"></v-text-field>
-								</v-flex>
-								<v-flex xs12 sm6 md4>
-									<v-text-field v-model="editedItem.carbs" label="Carbs (g)"></v-text-field>
-								</v-flex>
-								<v-flex xs12 sm6 md4>
-									<v-text-field v-model="editedItem.protein" label="Protein (g)"></v-text-field>
-								</v-flex>
-							</v-layout>
-						</v-container>
-					</v-card-text>
-					
-					<v-card-actions>
-						<v-spacer></v-spacer>
-						<v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
-						<v-btn color="blue darken-1" flat @click.native="save">Save</v-btn>
-					</v-card-actions>
-				</v-card>
-			</v-dialog>
-			-->
-			
 			<slot name="toolbar" :selected="selected" :data="data" :onCreateItem="onCreateItem">
-			
 			</slot>
-			
 		</v-toolbar>
-		{{ pagination.totalItems}}
 		<v-data-table
 				:items="data.items"
 				:item-key="itemKey"
 				v-model="selected"
-		
 				select-all
 				:pagination.sync="pagination"
 				:total-items="pagination.totalItems"
@@ -80,13 +35,9 @@
 						<v-icon v-if="header.sortable" small>arrow_upward</v-icon>
 						{{ header.text }}
 					</th>
-					
-					<th align="right" class="column" v-if="rowActions">
-					
-					</th>
+					<th align="right" class="column" v-if="rowActions"></th>
 				</tr>
 			</template>
-			
 			<template slot="items" slot-scope="props">
 				<tr :active="props.selected" @click="props.selected = !props.selected">
 					<td width="80px">
@@ -111,15 +62,6 @@
 					</td>
 				</tr>
 			</template>
-			
-			
-			
-			
-			<!--
-			<template slot="no-data">
-				<v-btn color="primary" @click="initialize">Reset</v-btn>
-			</template>-->
-
 		</v-data-table>
 	</v-card>
 </template>
@@ -181,38 +123,11 @@
 				sortBy : 'Id'
 			},
 			selected : [],
-			dialog: false,
-			//
-			editedIndex: -1,
-			editedItem: {
-				name: '',
-				calories: 0,
-				fat: 0,
-				carbs: 0,
-				protein: 0
-			},
-			defaultItem: {
-				name: '',
-				calories: 0,
-				fat: 0,
-				carbs: 0,
-				protein: 0
-			}
 		}),
-		
-		computed: {
-			formTitle () {
-				return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
-			}
-		},
-		
 		watch: {
 			pagination: {
 				handler : function ( v ){
-					this.fetchCallback()
-						.then(data => {
-						
-						})
+				
 				},
 				deep: true
 			},
@@ -222,14 +137,6 @@
 				},
 				deep : true
 			},
-			dialog (val) {
-				val || this.close()
-			}
-		},
-		created ()
-		{
-			this.pagination.sortBy = this.itemKey;
-			this.pagination.descending = this.descending;
 		},
 		methods: {
 			onFetchData()
@@ -280,7 +187,6 @@
 					;
 				})
 			},
-		
 			onCreateItem(){
 				return this.createCallback()
 					.then(response => {
@@ -299,25 +205,6 @@
 			
 			},
 			
-			
-			
-			
-			
-			close () {
-				this.dialog = false
-				setTimeout(() => {
-					this.editedItem = Object.assign({}, this.defaultItem)
-					this.editedIndex = -1
-				}, 300)
-			},
-			save () {
-				if (this.editedIndex > -1) {
-					Object.assign(this.desserts[this.editedIndex], this.editedItem)
-				} else {
-					this.desserts.push(this.editedItem)
-				}
-				this.close()
-			},
 			toggleAll () {
 				if (this.selected.length) this.selected = [];
 				else this.selected = this.data.slice()
