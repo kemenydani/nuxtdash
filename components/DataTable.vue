@@ -1,15 +1,13 @@
 <template>
 	<v-card class="elevation-3">
 		<v-toolbar flat color="white">
-			<v-toolbar-title>My CRUD</v-toolbar-title>
-			<v-divider
-					class="mx-2"
-					inset
-					vertical
-			></v-divider>
+			
+			
+			<v-toolbar-title>{{ title }}</v-toolbar-title>
 			<v-spacer></v-spacer>
+			<!--
 			<v-dialog v-model="dialog" max-width="500px">
-				<v-btn slot="activator" color="primary" dark class="mb-2">New Item</v-btn>
+				<v-btn slot="activator" color="primary" small dark class="mr-0">New Item</v-btn>
 				<v-card>
 					<v-card-title>
 						<span class="headline">{{ formTitle }}</span>
@@ -44,13 +42,22 @@
 					</v-card-actions>
 				</v-card>
 			</v-dialog>
+			-->
+			
+			<slot name="toolbar" :selected="selected" :data="data" :onCreateItem="onCreateItem">
+			
+			</slot>
+			
 		</v-toolbar>
+		{{ pagination.totalItems}}
 		<v-data-table
-				:items="data"
+				:items="data.items"
 				:item-key="itemKey"
 				v-model="selected"
+		
+				select-all
 				:pagination.sync="pagination"
-				hide-actions
+				:total-items="pagination.totalItems"
 		>
 			<template slot="headers" slot-scope="props">
 				<tr>
@@ -73,38 +80,46 @@
 						<v-icon v-if="header.sortable" small>arrow_upward</v-icon>
 						{{ header.text }}
 					</th>
+					
+					<th align="right" class="column" v-if="rowActions">
+					
+					</th>
+				</tr>
+			</template>
+			
+			<template slot="items" slot-scope="props">
+				<tr :active="props.selected" @click="props.selected = !props.selected">
+					<td width="80px">
+						<v-checkbox
+								:input-value="props.selected"
+								primary
+								hide-details
+						></v-checkbox>
+					</td>
+					<td
+							v-for="(th, key) in config.headers"
+							v-if="props.item.hasOwnProperty(th.value)"
+							:key="key"
+							:width="th.width"
+							:align="th.align"
+							:class="th.class"
+							v-html="th.hasOwnProperty('filter') ? th.filter(props.item[th.value]) : props.item[th.value]">
+					</td>
+					<td class="text-xs-right" v-if="rowActions">
+						<v-icon v-if="updateCallback" color="orange" small class="mr-2" @click="updateCallback(props.item)">edit</v-icon>
+						<v-icon v-if="deleteCallback" color="red" small @click="deleteCallback(props.item)">delete</v-icon>
+					</td>
 				</tr>
 			</template>
 			
 			
-			<template slot="items" slot-scope="props">
-				
-				<td>
-					<v-checkbox
-							:input-value="props.selected"
-							primary
-							hide-details
-					></v-checkbox>
-				</td>
-				
-				<td
-						v-for="(th, key) in config.headers"
-						v-if="props.item.hasOwnProperty(th.value)"
-						:key="key"
-						:align="th.align"
-						:class="th.class"
-						v-html="th.hasOwnProperty('filter') ? th.filter(props.item[th.value]) : props.item[th.value]">
-				</td>
-				
-				<td class="text-xs-right">
-					<v-icon v-if="updateCallback" color="orange" small class="mr-2" @click="updateCallback(props.item)">edit</v-icon>
-					<v-icon v-if="deleteCallback" color="red" small @click="deleteCallback(props.item)">delete</v-icon>
-				</td>
-				
-			</template>
+			
+			
+			<!--
 			<template slot="no-data">
-				<!--<v-btn color="primary" @click="initialize">Reset</v-btn>-->
-			</template>
+				<v-btn color="primary" @click="initialize">Reset</v-btn>
+			</template>-->
+
 		</v-data-table>
 	</v-card>
 </template>
@@ -113,13 +128,23 @@
 	export default {
 		name: 'DataTable',
 		props : {
+			title : {
+				type : String,
+				required : false,
+				default : () => ''
+			},
 			data : {
-				type : Array,
+				type : Object,
 				required : true
 			},
 			itemKey : {
 				type : String,
 				required : true
+			},
+			rowActions : {
+				type : Boolean,
+				required : false,
+				default : () => true
 			},
 			descending : {
 				type : Boolean,
@@ -149,10 +174,15 @@
 		},
 		data: () => ({
 			pagination: {
-				descending: true
+				descending: true,
+				totalItems: 0,
+				page : 1,
+				rowsPerPage : 5,
+				sortBy : 'Id'
 			},
 			selected : [],
 			dialog: false,
+			//
 			editedIndex: -1,
 			editedItem: {
 				name: '',
@@ -177,6 +207,15 @@
 		},
 		
 		watch: {
+			pagination: {
+				handler : function ( v ){
+					this.fetchCallback()
+						.then(data => {
+						
+						})
+				},
+				deep: true
+			},
 			selected : {
 				handler : function( v ) {
 					this.$emit('select', v);
@@ -193,15 +232,77 @@
 			this.pagination.descending = this.descending;
 		},
 		methods: {
-			editItem (item) {
-				this.editedIndex = this.desserts.indexOf(item)
-				this.editedItem = Object.assign({}, item)
-				this.dialog = true
+			onFetchData()
+			{
+				this.loading = true;
+				return new Promise((resolve, reject) =>
+				{
+					this.fetchCallback(this.pagination)
+						.then(response =>
+						{
+							this.items = response.items;
+							this.pagination.totalItems = parseInt(response.totalItems);
+							this.pagination.page = parseInt(response.currentPage);
+							this.pagination.rowsPerPage = parseInt(response.perPage);
+							
+							if(this.pagination.sortBy)
+							{
+								this.items = this.items.sort((a, b) => {
+									const sortA = a[sortBy];
+									const sortB = b[sortBy];
+									
+									if (descending) {
+										if (sortA < sortB) return 1;
+										if (sortA > sortB) return -1;
+										return 0
+									} else {
+										if (sortA < sortB) return -1;
+										if (sortA > sortB) return 1;
+										return 0
+									}
+								})
+							}
+							
+							if (rowsPerPage > 0) {
+								this.items = this.items.slice((page - 1) * rowsPerPage, page * rowsPerPage)
+							}
+							this.loading = false;
+							resolve({
+								items: this.items,
+								total: parseInt(this.pagination.totalItems)
+							})
+							
+						})
+						.catch(error =>
+						{
+						
+						})
+					;
+				})
 			},
-			deleteItem (item) {
-				const index = this.desserts.indexOf(item)
-				confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1)
+		
+			onCreateItem(){
+				return this.createCallback()
+					.then(response => {
+						console.log('onCreateItem then:');
+						console.log(response);
+					})
+					.catch(error => {
+						console.log('onCreateItem catch:');
+						console.log(error.message);
+					});
 			},
+			onUpdateItem(){
+			
+			},
+			onDeleteItem (item) {
+			
+			},
+			
+			
+			
+			
+			
 			close () {
 				this.dialog = false
 				setTimeout(() => {
