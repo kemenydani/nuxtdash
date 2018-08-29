@@ -46,7 +46,7 @@
 								primary
 								hide-details
 						></v-checkbox>
-					</td>
+					</td>District XXI., Budapest, Hungary
 					<td
 							v-for="(th, key) in config.headers"
 							v-if="props.item.hasOwnProperty(th.value)"
