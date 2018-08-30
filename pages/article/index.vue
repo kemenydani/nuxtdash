@@ -111,26 +111,11 @@
 					'Content-Type': 'application/json'
 				}
 			});
-
-			let json =  await response.json();
 			
-			return {
-				data : {
-					items : json.items,
-					pagination : json.pagination
-				}
-			}
+			return { data : await response.json() }
 		},
 		methods :
 		{
-			async saveData()
-			{
-
-			},
-			async deleteData()
-			{
-			
-			},
 			onRowSelect(selected = [])
 			{
 				console.log(selected)
@@ -138,7 +123,3 @@
 		}
 	}
 </script>
-
-<style lang="scss">
-
-</style>

@@ -97,30 +97,14 @@
 				type : Object,
 				required : true
 			},
-			fetchCallback : {
-				type : Function,
-				required : true,
-			},
-			createCallback : {
-				type : Function,
-				required : false,
-			},
-			updateCallback : {
-				type : Function,
-				required : false,
-			},
-			deleteCallback : {
-				type : Function,
-				required : false,
-			},
 		},
 		data: () => ({
-			pagination: {
+			pagination : {
 				descending : true,
 				totalItems : 0,
 				totalPages : 0,
 				page : 1,
-				rowsPerPage : 5,
+				perPage : 0,
 				sortBy : '',
 				search : ''
 			},
