@@ -7,7 +7,7 @@
 			</slot>
 		</v-toolbar>
 		<v-data-table
-				:items="data.items"
+				:items="items"
 				:item-key="itemKey"
 				v-model="selected"
 				select-all
@@ -29,7 +29,7 @@
 							v-for="header in config.headers"
 							:key="header.text"
 							:align="header.align ? header.align : 'left'"
-							:class="['column active', header.sortable ? 'sortable ' + (pagination.descending ? 'desc ' : 'asc') : '']"
+							:class="['column', header.sortable ? 'sortable ' + (pagination.descending ? 'desc ' : 'asc') + (pagination.sortBy === header.value ? 'active ' : '') : '']"
 							@click="(() => { header.sortable ? changeSort(header.value) : false; })"
 					>
 						<v-icon v-if="header.sortable" small>arrow_upward</v-icon>
@@ -46,7 +46,7 @@
 								primary
 								hide-details
 						></v-checkbox>
-					</td>District XXI., Budapest, Hungary
+					</td>
 					<td
 							v-for="(th, key) in config.headers"
 							v-if="props.item.hasOwnProperty(th.value)"
@@ -77,7 +77,7 @@
 			},
 			data : {
 				type : Object,
-				required : true
+				required : false //todo back to true
 			},
 			itemKey : {
 				type : String,
@@ -116,18 +116,21 @@
 		},
 		data: () => ({
 			pagination: {
-				descending: true,
-				totalItems: 0,
+				descending : true,
+				totalItems : 0,
+				totalPages : 0,
 				page : 1,
 				rowsPerPage : 5,
-				sortBy : 'Id'
+				sortBy : '',
+				search : ''
 			},
 			selected : [],
+			items : [],
 		}),
 		watch: {
 			pagination: {
-				handler : function ( v ){
-				
+				handler : function() {
+					this.onFetchData()
 				},
 				deep: true
 			},
@@ -138,54 +141,42 @@
 				deep : true
 			},
 		},
+		mounted(){
+			this.onFetchData()
+		},
 		methods: {
-			onFetchData()
+			async onFetchData()
 			{
 				this.loading = true;
-				return new Promise((resolve, reject) =>
-				{
-					this.fetchCallback(this.pagination)
-						.then(response =>
-						{
-							this.items = response.items;
-							this.pagination.totalItems = parseInt(response.totalItems);
-							this.pagination.page = parseInt(response.currentPage);
-							this.pagination.rowsPerPage = parseInt(response.perPage);
-							
-							if(this.pagination.sortBy)
-							{
-								this.items = this.items.sort((a, b) => {
-									const sortA = a[sortBy];
-									const sortB = b[sortBy];
-									
-									if (descending) {
-										if (sortA < sortB) return 1;
-										if (sortA > sortB) return -1;
-										return 0
-									} else {
-										if (sortA < sortB) return -1;
-										if (sortA > sortB) return 1;
-										return 0
-									}
-								})
-							}
-							
-							if (rowsPerPage > 0) {
-								this.items = this.items.slice((page - 1) * rowsPerPage, page * rowsPerPage)
-							}
-							this.loading = false;
-							resolve({
-								items: this.items,
-								total: parseInt(this.pagination.totalItems)
-							})
-							
-						})
-						.catch(error =>
-						{
-						
-						})
-					;
-				})
+				
+				let queryString = Object.keys(this.pagination).map(key => key + '=' + this.pagination[key]).join('&');
+				
+				const response =  await fetch("/api/articles?" + queryString, {
+					credentials: 'include',
+					method: 'GET',
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json'
+					}
+				});
+				
+				let json = await response.json();
+				
+				this.items = json.items || [];
+				
+				this.pagination.totalItems = json.totalItems;
+				this.pagination.totalPages = json.totalPages;
+				this.pagination.page = json.page;
+				this.pagination.rowsPerPage = json.rowsPerPage;
+				this.pagination.descending = json.descending;
+				this.pagination.sortBy = json.sortBy;
+				
+				this.loading = false;
+				
+				return {
+					items : this.items,
+					total : this.pagination.totalItems
+				}
 			},
 			onCreateItem(){
 				return this.createCallback()
@@ -204,7 +195,6 @@
 			onDeleteItem (item) {
 			
 			},
-			
 			toggleAll () {
 				if (this.selected.length) this.selected = [];
 				else this.selected = this.data.slice()

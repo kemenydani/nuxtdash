@@ -2,7 +2,6 @@
 	<v-content>
 		<DataTable
 				title="Articles"
-				:data="data"
 				:config="config"
 				itemKey="Id"
 				:rowActions="true"
@@ -112,8 +111,23 @@
 		},
 		async asyncData( context )
 		{
-			const response = await fetch('/api/articles?currentPage=0&perPage=5&descending=true');
+			let queryParams = {
+				page : 1,
+				rowsPerPage : 5,
+				descending : true,
+				search : ''
+			};
 			
+			let queryString = Object.keys(queryParams).map(key => key + '=' + queryParams[key]).join('&');
+	
+			const response =  await fetch("/api/articles?" + queryString, {
+				credentials: 'include',
+				method: 'GET',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json'
+				}
+			});
 			//if(response.status !== 200) throw new Error('Data loading error');
 			
 			let data =  await response.json();
@@ -122,10 +136,27 @@
 				data : data
 			}
 		},
-		methods : {
+		methods :
+		{
 			async fetchData( pagination = {} )
 			{
-				const response = await fetch('/api/articles');
+				let queryParams = {
+					page : 1,
+					rowsPerPage : 5,
+					descending : true,
+					search : ''
+				};
+				
+				let queryString = Object.keys(queryParams).map(key => key + '=' + queryParams[key]).join('&');
+				
+				const response =  await fetch("/api/articles?" + queryString, {
+					credentials: 'include',
+					method: 'GET',
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json'
+					}
+				});
 				
 				if(response.status !== 200) throw new Error('Data loading error');
 				
