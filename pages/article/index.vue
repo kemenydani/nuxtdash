@@ -3,12 +3,10 @@
 		<DataTable
 				title="Articles"
 				:config="config"
-				:data="data"
+				:initial-pagination="data.pagination"
+				:initial-items="data.items"
 				itemKey="Id"
 				:rowActions="true"
-				:createCallback="saveData"
-				:updateCallback="saveData"
-				:deleteCallback="deleteData"
 				@select="onRowSelect"
 		>
 			<template slot="toolbar" slot-scope="props">
@@ -61,7 +59,9 @@
 						loading : false
 					}
 				},
+				data : {},
 				config : {
+					colCount : 6,
 					headers : [
 						{
 							text: 'Id',
@@ -112,7 +112,9 @@
 				}
 			});
 			
-			return { data : await response.json() }
+			let d = await response.json();
+			
+			return { data : d }
 		},
 		methods :
 		{
