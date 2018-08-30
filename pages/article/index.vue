@@ -6,7 +6,6 @@
 				:data="data"
 				itemKey="Id"
 				:rowActions="true"
-				:fetchCallback="fetchData"
 				:createCallback="saveData"
 				:updateCallback="saveData"
 				:deleteCallback="deleteData"
@@ -35,7 +34,6 @@
 						<v-card-actions>
 							<v-spacer></v-spacer>
 							<v-btn color="blue darken-1" flat :disabled="dialogs.create.loading" @click.native="dialogs.create.open = false">Cancel</v-btn>
-							
 							<v-btn
 									:loading="dialogs.create.loading"
 									@click.native="dialogs.create.loading = true; props.onCreateItem().then( () => { dialogs.create.open = false; dialogs.create.loading = false } )"
@@ -114,45 +112,20 @@
 				}
 			});
 
-			let data =  await response.json();
+			let json =  await response.json();
 			
-			return { data : data }
+			return {
+				data : {
+					items : json.items,
+					pagination : json.pagination
+				}
+			}
 		},
 		methods :
 		{
-			async fetchData( pagination = {} )
-			{
-				let queryParams = {
-					page : 1,
-					rowsPerPage : 5,
-					descending : true,
-					search : ''
-				};
-				
-				let queryString = Object.keys(queryParams).map(key => key + '=' + queryParams[key]).join('&');
-				
-				const response =  await fetch("/api/articles?" + queryString, {
-					credentials: 'include',
-					method: 'GET',
-					headers: {
-						'Accept': 'application/json',
-						'Content-Type': 'application/json'
-					}
-				});
-				
-				if(response.status !== 200) throw new Error('Data loading error');
-				
-				let data =  await response.json();
-				
-				return { items : data.items, totalItems : data.totalItems };
-			},
 			async saveData()
 			{
-				return new Promise((resolve, reject) => {
-					setTimeout(() => {
-						resolve({ foo : 'bar' })
-					}, 3000);
-				});
+
 			},
 			async deleteData()
 			{
@@ -162,9 +135,6 @@
 			{
 				console.log(selected)
 			}
-		},
-		mounted(){
-			this.fetchData()
 		}
 	}
 </script>
