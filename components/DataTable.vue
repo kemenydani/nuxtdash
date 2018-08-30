@@ -77,7 +77,7 @@
 			},
 			data : {
 				type : Object,
-				required : false //todo back to true
+				required : true //todo back to true
 			},
 			itemKey : {
 				type : String,
@@ -141,8 +141,10 @@
 				deep : true
 			},
 		},
-		mounted(){
-			this.onFetchData()
+		created()
+		{
+			this.items = this.data.items;
+			this.pagination = this.data.pagination;
 		},
 		methods: {
 			async onFetchData()

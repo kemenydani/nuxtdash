@@ -3,6 +3,7 @@
 		<DataTable
 				title="Articles"
 				:config="config"
+				:data="data"
 				itemKey="Id"
 				:rowActions="true"
 				:fetchCallback="fetchData"
@@ -100,27 +101,11 @@
 						},
 					],
 				},
-				
-				data : {
-					items : [],
-					totalItems : 0,
-					currentPage : 1,
-					perPage : 5
-				}
 			}
 		},
 		async asyncData( context )
 		{
-			let queryParams = {
-				page : 1,
-				rowsPerPage : 5,
-				descending : true,
-				search : ''
-			};
-			
-			let queryString = Object.keys(queryParams).map(key => key + '=' + queryParams[key]).join('&');
-	
-			const response =  await fetch("/api/articles?" + queryString, {
+			const response =  await fetch("/api/articles", {
 				credentials: 'include',
 				method: 'GET',
 				headers: {
@@ -128,13 +113,10 @@
 					'Content-Type': 'application/json'
 				}
 			});
-			//if(response.status !== 200) throw new Error('Data loading error');
-			
+
 			let data =  await response.json();
 			
-			return {
-				data : data
-			}
+			return { data : data }
 		},
 		methods :
 		{
