@@ -129,7 +129,7 @@
 		}),
 		watch: {
 			pagination: {
-				handler : function() {
+				handler : function( v ) {
 					this.onFetchData()
 				},
 				deep: true
@@ -164,13 +164,8 @@
 				
 				this.items = json.items || [];
 				
-				this.pagination.totalItems = json.totalItems;
-				this.pagination.totalPages = json.totalPages;
-				this.pagination.page = json.page;
-				this.pagination.rowsPerPage = json.rowsPerPage;
-				this.pagination.descending = json.descending;
-				this.pagination.sortBy = json.sortBy;
-				
+				Object.keys(json.pagination).forEach(key => this.pagination[key] = json.pagination[key]);
+			
 				this.loading = false;
 				
 				return {
