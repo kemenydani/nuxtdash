@@ -40,29 +40,16 @@
       <v-spacer></v-spacer>
   
       <v-badge overlap color="red" class="mr-2">
-        <span slot="badge" v-if="authUserActiveNotificationCount">
-          {{ authUserActiveNotificationCount }}
+        <span slot="badge" v-if="authUserActiveNotificationSum && authUserActiveNotificationSum > 0">
+          {{ authUserActiveNotificationSum }}
         </span>
         <v-icon medium @click.stop="rightDrawer = !rightDrawer"
                 large
                 color="white"
         >
-          notifications
+          account_circle
         </v-icon>
       </v-badge>
-      
-      <v-badge overlap color="red" class="ml-2">
-        <span slot="badge" v-if="authUserActiveConversationCount">
-          {{ authUserActiveConversationCount }}
-        </span>
-        <v-icon medium @click.stop="rightDrawer = !rightDrawer"
-            large
-            color="white"
-        >
-          email
-        </v-icon>
-      </v-badge>
-     
     </v-toolbar>
     <v-content>
       <v-container>
@@ -204,6 +191,9 @@
       },
 		  authUserActiveConversationCount(){
 			  return this.$store.getters.getAuthUserActiveConversationCount;
+      },
+      authUserActiveNotificationSum(){
+	      return this.$store.getters.getAuthUserActiveNotificationCount + this.$store.getters.getAuthUserActiveConversationCount;
       }
 	  },
     methods : {

@@ -3,8 +3,37 @@
 		<v-toolbar flat color="white">
 			<v-toolbar-title>{{ title }}</v-toolbar-title>
 			<v-spacer></v-spacer>
+			<!--
 			<slot name="toolbar" :selected="selected" :data="items">
-			</slot>
+			</slot>-->
+			<!-- delete prompt -->
+			<v-dialog v-model="dialogs.delete.open" persistent max-width="400" max-height="300">
+				<v-btn slot="activator" @click="dialogs.delete.open = true" color="red" dark small>Delete</v-btn>
+				<v-card>
+					<v-card-title class="headline">Delete selected items?</v-card-title>
+					<v-card-text>
+						<v-list>
+							<template v-for="(item, key) in selected" v-if="selected[key]">
+								<v-list-tile :key="'tile' + key" dense>
+									<v-list-tile-action>
+										<v-checkbox v-model="selected[key]" primary hide-details></v-checkbox>
+									</v-list-tile-action>
+									<v-list-tile-content>
+										<v-list-tile-title>{{ item.Title }}</v-list-tile-title>
+									</v-list-tile-content>
+								</v-list-tile>
+								<v-divider v-if="key !== selected.length - 1" :key="'divider' + key"></v-divider>
+							</template>
+						</v-list>
+					</v-card-text>
+					<v-card-actions>
+						<v-spacer></v-spacer>
+						<v-btn color="primary" flat @click.native="dialogs.delete.open = false">Cancel</v-btn>
+						<v-btn color="red" flat :loading="dialogs.delete.loading" @click.native="deleteSelected">Continue</v-btn>
+					</v-card-actions>
+				</v-card>
+			</v-dialog>
+			
 		</v-toolbar>
 		<v-data-table :headers-length="config.colCount" :items="items" :loading="loading" :item-key="itemKey" :pagination.sync="pagination" :total-items="pagination.totalItems" v-model="selected" select-all>
 			<!-- headers -->
@@ -42,7 +71,6 @@
 					</td>
 					<td class="text-xs-right" v-if="rowActions">
 						<v-icon color="orange" small class="mr-2" >edit</v-icon>
-						<v-icon color="red" small>delete</v-icon>
 					</td>
 				</tr>
 			</template>
@@ -75,6 +103,12 @@
 			config : { type : Object, required : true },
 		},
 		data : () => ({
+			dialogs : {
+				delete : {
+					open : false,
+					loading : false
+				}
+			},
 			selected : [],
 			items : [],
 			pagination : {},
@@ -106,6 +140,24 @@
 				this.loading = false;
 				
 				return json;
+			},
+			deleteSelected()
+			{
+				this.dialogs.delete.loading = true;
+				
+				return new Promise((resolve, reject) => {
+					setTimeout(() => {
+						this.dialogs.delete.loading = false;
+						this.dialogs.delete.open = false;
+						resolve(true)
+					}, 6000)
+				})
+				
+			},
+			deleteItem(item)
+			{
+					const index = this.items.indexOf(item);
+					confirm('Are you sure you want to delete this item?') && this.items.splice(index, 1)
 			},
 			checkAll () {
 				if (this.selected.length) this.selected = [];
