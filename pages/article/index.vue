@@ -98,6 +98,41 @@
 							sortable : true
 						},
 					],
+					fields : {
+						Id : {
+							text : 'Id',
+							hint : 'This is an Id hint',
+							width : '30px',
+							sortable : true,
+						},
+						Title : {
+							text : 'Title',
+							hint : 'This is a Title hint',
+							sortable : true,
+							edit : 'text',
+							filter : function( v ){
+								return '<a href="#">' + v + '</a>';
+							},
+						},
+						Active : {
+							text : 'Active',
+							hint : 'This is an Active hint',
+							sortable : true,
+							edit : 'switch',
+							filter : function( v ){
+								return v === '0' ? 'Inactive' : 'Active';
+							},
+						},
+						CreatedAt : {
+							text : 'CreatedAt',
+							hint : 'This is an CreatedAt hint',
+							sortable : true,
+							edit : 'datetime',
+							filter : function( v ){
+								return v;
+							},
+						},
+					},
 				},
 			}
 		},

@@ -67,7 +67,7 @@
 					<th :key="header.text"
 							:align="header.align ? header.align : 'left'"
 							:class="['column', header.sortable ? 'sortable ' + (pagination.descending ? 'desc ' : 'asc') + (pagination.sortBy === header.value ? 'active ' : '') : '']"
-							v-for="header in config.headers"
+							v-for="header in fields"
 							@click="() => { header.sortable ? changeSort(header.value) : false; }"
 					>
 						<v-icon v-if="header.sortable" small>arrow_upward</v-icon>
@@ -82,7 +82,7 @@
 					<td width="80px">
 						<v-checkbox :input-value="props.selected" primary hide-details></v-checkbox>
 					</td>
-					<td v-for="(th, key) in config.headers"
+					<td v-for="(th, key) in fields"
 							v-if="props.item.hasOwnProperty(th.value)"
 							v-html="th.hasOwnProperty('filter') ? th.filter(props.item[th.value]) : props.item[th.value]"
 							:key="key"
@@ -101,6 +101,8 @@
 </template>
 
 <script>
+	/* eslint-disable vue/no-side-effects-in-computed-properties */
+	
 	export default {
 		name : 'DataTable',
 		props : {
@@ -167,7 +169,7 @@
 				
 				return json;
 			},
-			deleteSelected()
+			deleteSelected ()
 			{
 				this.dialogs.delete.loading = true;
 				
@@ -180,28 +182,44 @@
 				})
 				
 			},
-			checkAll () {
-				if (this.selected.length) this.selected = [];
-				else this.selected = this.items.slice()
+			checkAll ()
+			{
+				this.selected = this.selected.length ? [] : this.items.slice();
 			},
-			changeSort (column) {
-				if (this.pagination.sortBy === column) {
-					this.pagination.descending = !this.pagination.descending
-				} else {
-					this.pagination.sortBy = column
-					this.pagination.descending = false
+			changeSort (column)
+			{
+				if (this.pagination.sortBy === column)
+				{
+					this.pagination.descending = !this.pagination.descending;
+				}
+				else
+				{
+					this.pagination.sortBy = column;
+					this.pagination.descending = false;
 				}
 			}
 		},
-		watch: {
-			pagination: {
-				handler : function( v ) {
+		computed :
+		{
+			fields ()
+			{
+				return Object.keys(this.config.fields).map(value => Object.assign(this.config.fields[value], { value }));
+			}
+		},
+		watch:
+		{
+			pagination:
+			{
+				handler : function( v )
+				{
 					this.onFetchData()
 				},
 				deep: true
 			},
-			selected : {
-				handler : function( v ) {
+			selected :
+			{
+				handler : function( v )
+				{
 					this.$emit('select', v);
 				},
 				deep : true
