@@ -7,7 +7,7 @@
 			<slot name="toolbar" :selected="selected" :data="items">
 			</slot>-->
 			<!-- delete prompt -->
-			<v-dialog v-model="dialogs.delete.open" persistent max-width="400" max-height="300">
+			<v-dialog v-model="dialogs.delete.open" persistent max-width="500">
 				<v-btn slot="activator" @click="dialogs.delete.open = true" color="red" dark small>Delete</v-btn>
 				<v-card>
 					<v-card-title class="headline">Delete selected items?</v-card-title>
@@ -31,6 +31,28 @@
 						<v-btn color="primary" flat @click.native="dialogs.delete.open = false">Cancel</v-btn>
 						<v-btn color="red" flat :loading="dialogs.delete.loading" @click.native="deleteSelected">Continue</v-btn>
 					</v-card-actions>
+				</v-card>
+			</v-dialog>
+			
+			<v-dialog v-model="dialogs.edit.open" fullscreen transition="dialog-bottom-transition">
+				<v-card>
+					<v-toolbar dark color="primary">
+						<v-btn icon dark @click.native="dialogs.edit.open = false">
+							<v-icon>close</v-icon>
+						</v-btn>
+						<v-toolbar-title>Settings</v-toolbar-title>
+						<v-spacer></v-spacer>
+						<v-toolbar-items>
+							<v-btn dark flat @click.native="dialogs.edit.open = false">Save</v-btn>
+						</v-toolbar-items>
+					</v-toolbar>
+					<v-list three-line subheader>
+		
+					</v-list>
+					<v-divider></v-divider>
+					<v-list three-line subheader>
+			
+					</v-list>
 				</v-card>
 			</v-dialog>
 			
@@ -70,7 +92,7 @@
 					>
 					</td>
 					<td class="text-xs-right" v-if="rowActions">
-						<v-icon color="orange" small class="mr-2" >edit</v-icon>
+						<v-icon color="orange" @click="dialogs.edit.open = true" small class="mr-2" >edit</v-icon>
 					</td>
 				</tr>
 			</template>
@@ -88,7 +110,7 @@
 				type : Object,
 				required : false,
 				default : () => ({
-					perPage : 0,
+					rowsPerPage : 0,
 					page : 1,
 					totalPages : 0,
 					totalItems : 0,
@@ -105,6 +127,10 @@
 		data : () => ({
 			dialogs : {
 				delete : {
+					open : false,
+					loading : false,
+				},
+				edit : {
 					open : false,
 					loading : false
 				}
@@ -154,14 +180,9 @@
 				})
 				
 			},
-			deleteItem(item)
-			{
-					const index = this.items.indexOf(item);
-					confirm('Are you sure you want to delete this item?') && this.items.splice(index, 1)
-			},
 			checkAll () {
 				if (this.selected.length) this.selected = [];
-				else this.selected = this.data.slice()
+				else this.selected = this.items.slice()
 			},
 			changeSort (column) {
 				if (this.pagination.sortBy === column) {
